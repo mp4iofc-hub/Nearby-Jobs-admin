@@ -759,7 +759,7 @@
     try {
 
       const snapshot =
-        await get(ref(db));
+        await get(ref(db,"accessRequests"));
 
 
       if (!snapshot.exists()) {
