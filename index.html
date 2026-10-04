@@ -1,280 +1,294 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Nearby Jobs Admin</title>
+  <title>Nearby Jobs Admin</title>
 
-<style>
-*{
-  box-sizing:border-box;
-}
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-body{
-  margin:0;
-  font-family:Arial,Helvetica,sans-serif;
-  background:#f2f6fc;
-  color:#17233c;
-}
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f1f5f9;
+      color: #172033;
+    }
 
-.container{
-  width:100%;
-  max-width:1100px;
-  margin:auto;
-  padding:20px;
-}
+    .container {
+      max-width: 900px;
+      margin: auto;
+      padding: 18px;
+    }
 
-.header{
-  background:#0d6efd;
-  color:white;
-  padding:20px;
-  border-radius:16px;
-  margin-bottom:20px;
-  box-shadow:0 5px 20px rgba(0,0,0,.12);
-}
+    .login-box,
+    .admin-box {
+      background: white;
+      border-radius: 22px;
+      padding: 28px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    }
 
-.header h1{
-  margin:0 0 5px;
-  font-size:28px;
-}
+    .login-box {
+      margin-top: 60px;
+    }
 
-.header p{
-  margin:0;
-  opacity:.9;
-}
+    h1 {
+      margin-top: 0;
+      color: #1268e8;
+    }
 
-.card{
-  background:white;
-  border-radius:16px;
-  padding:22px;
-  box-shadow:0 5px 20px rgba(0,0,0,.08);
-  margin-bottom:20px;
-}
+    h2 {
+      margin-top: 0;
+    }
 
-.login-card{
-  max-width:450px;
-  margin:60px auto;
-}
+    input {
+      width: 100%;
+      padding: 15px;
+      margin: 8px 0;
+      border: 1px solid #ccd3dd;
+      border-radius: 12px;
+      font-size: 16px;
+      outline: none;
+    }
 
-h2{
-  margin-top:0;
-}
+    input:focus {
+      border-color: #1268e8;
+    }
 
-input{
-  width:100%;
-  padding:14px;
-  margin:8px 0;
-  border:1px solid #d5dce7;
-  border-radius:10px;
-  font-size:16px;
-  outline:none;
-}
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 14px 20px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
-input:focus{
-  border-color:#0d6efd;
-}
+    .login-btn {
+      width: 100%;
+      background: #1268e8;
+      color: white;
+      margin-top: 10px;
+    }
 
-button{
-  border:0;
-  border-radius:10px;
-  padding:12px 18px;
-  font-size:15px;
-  font-weight:bold;
-  cursor:pointer;
-}
+    .logout {
+      background: #e63946;
+      color: white;
+      float: right;
+    }
 
-.login-btn{
-  width:100%;
-  background:#0d6efd;
-  color:white;
-  margin-top:10px;
-}
+    .refresh {
+      background: #1268e8;
+      color: white;
+      margin-bottom: 20px;
+    }
 
-.login-btn:disabled{
-  opacity:.6;
-}
+    .approve {
+      background: #159957;
+      color: white;
+      margin-right: 8px;
+    }
 
-.logout-btn{
-  background:#dc3545;
-  color:white;
-  float:right;
-}
+    .reject {
+      background: #e63946;
+      color: white;
+    }
 
-.refresh-btn{
-  background:#0d6efd;
-  color:white;
-  margin-bottom:15px;
-}
+    .top {
+      background: linear-gradient(135deg, #1268e8, #0875ff);
+      color: white;
+      border-radius: 22px;
+      padding: 28px;
+      margin-bottom: 25px;
+      overflow: hidden;
+    }
 
-.approve-btn{
-  background:#198754;
-  color:white;
-}
+    .top h1 {
+      color: white;
+      margin-bottom: 8px;
+    }
 
-.reject-btn{
-  background:#dc3545;
-  color:white;
-}
+    .top p {
+      font-size: 19px;
+      margin: 0;
+    }
 
-.request{
-  border:1px solid #e0e6ef;
-  border-radius:14px;
-  padding:18px;
-  margin-bottom:15px;
-  background:#fff;
-}
+    .request {
+      background: white;
+      border: 1px solid #e1e5eb;
+      border-radius: 20px;
+      padding: 22px;
+      margin-bottom: 18px;
+      box-shadow: 0 5px 18px rgba(0,0,0,0.05);
+    }
 
-.request-top{
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  align-items:center;
-  margin-bottom:12px;
-}
+    .request h3 {
+      margin-top: 0;
+      font-size: 20px;
+    }
 
-.badge{
-  background:#fff3cd;
-  color:#856404;
-  padding:6px 10px;
-  border-radius:20px;
-  font-size:13px;
-  font-weight:bold;
-}
+    .row {
+      margin: 10px 0;
+      font-size: 16px;
+      line-height: 1.4;
+    }
 
-.row{
-  margin:8px 0;
-  line-height:1.5;
-}
+    .status {
+      display: inline-block;
+      padding: 7px 13px;
+      border-radius: 20px;
+      font-weight: bold;
+      margin-bottom: 12px;
+    }
 
-.label{
-  font-weight:bold;
-  color:#536174;
-}
+    .pending {
+      background: #fff2c7;
+      color: #8a6a00;
+    }
 
-.actions{
-  display:flex;
-  gap:10px;
-  margin-top:15px;
-  flex-wrap:wrap;
-}
+    .approved {
+      background: #d8f5e5;
+      color: #138a4c;
+    }
 
-.status-approved{
-  color:#198754;
-  font-weight:bold;
-}
+    .rejected {
+      background: #ffdadd;
+      color: #c82333;
+    }
 
-.status-rejected{
-  color:#dc3545;
-  font-weight:bold;
-}
+    .whatsapp {
+      color: #075bd8;
+      text-decoration: underline;
+      font-weight: bold;
+    }
 
-.error{
-  color:#dc3545;
-  background:#ffe8eb;
-  padding:10px;
-  border-radius:8px;
-  margin-top:10px;
-  display:none;
-}
+    .actions {
+      margin-top: 18px;
+      padding-top: 15px;
+      border-top: 1px solid #e5e7eb;
+    }
 
-.success{
-  color:#146c43;
-  background:#d1e7dd;
-  padding:10px;
-  border-radius:8px;
-  margin-top:10px;
-  display:none;
-}
+    .message {
+      padding: 12px;
+      border-radius: 10px;
+      margin: 12px 0;
+      display: none;
+    }
 
-.empty{
-  text-align:center;
-  padding:40px 10px;
-  color:#697586;
-}
+    .error {
+      background: #ffe0e0;
+      color: #a00000;
+    }
 
-.loading{
-  text-align:center;
-  padding:30px;
-}
+    .success {
+      background: #ddf8e8;
+      color: #08783d;
+    }
 
-@media(max-width:600px){
-  .container{
-    padding:12px;
-  }
+    .loading {
+      text-align: center;
+      padding: 30px;
+      font-size: 18px;
+    }
 
-  .header h1{
-    font-size:24px;
-  }
+    .hidden {
+      display: none !important;
+    }
 
-  .request-top{
-    align-items:flex-start;
-    flex-direction:column;
-  }
+    .empty {
+      text-align: center;
+      background: white;
+      padding: 30px;
+      border-radius: 18px;
+    }
 
-  .actions button{
-    flex:1;
-  }
-}
-</style>
+    .small {
+      font-size: 13px;
+      color: #667085;
+    }
+
+    @media(max-width:600px) {
+
+      .container {
+        padding: 14px;
+      }
+
+      .login-box,
+      .admin-box {
+        padding: 22px;
+      }
+
+      .top {
+        padding: 24px;
+      }
+
+      .top h1 {
+        font-size: 30px;
+      }
+
+      .top p {
+        font-size: 18px;
+      }
+
+      .approve,
+      .reject {
+        width: 100%;
+        margin: 5px 0;
+      }
+
+      .logout {
+        padding: 11px 16px;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<div id="loginPage">
+<div class="container">
 
-  <div class="container">
+  <!-- LOGIN -->
+  <div id="loginSection" class="login-box">
 
-    <div class="card login-card">
+    <h1>Nearby Jobs Admin</h1>
 
-      <h1 style="color:#0d6efd;">Nearby Jobs</h1>
-      <h2>Admin Login</h2>
+    <h2>Admin Login</h2>
 
-      <p style="color:#687386;">
-        Login only with the authorized admin account.
-      </p>
+    <input
+      type="email"
+      id="email"
+      placeholder="Admin Email"
+      autocomplete="email"
+    >
 
-      <input
-        type="email"
-        id="email"
-        placeholder="Admin Email"
-        autocomplete="email"
-      >
+    <input
+      type="password"
+      id="password"
+      placeholder="Password"
+      autocomplete="current-password"
+    >
 
-      <input
-        type="password"
-        id="password"
-        placeholder="Password"
-        autocomplete="current-password"
-      >
+    <button class="login-btn" id="loginBtn">
+      Login
+    </button>
 
-      <button
-        class="login-btn"
-        id="loginBtn"
-        onclick="loginAdmin()"
-      >
-        Login
-      </button>
-
-      <div id="loginError" class="error"></div>
-
-    </div>
+    <div id="loginMessage" class="message error"></div>
 
   </div>
 
-</div>
 
+  <!-- ADMIN -->
+  <div id="adminSection" class="hidden">
 
-<div id="adminPage" style="display:none;">
-
-  <div class="container">
-
-    <div class="header">
+    <div class="top">
 
       <button
-        class="logout-btn"
-        onclick="logoutAdmin()"
-      >
+        class="logout"
+        id="logoutBtn">
         Logout
       </button>
 
@@ -287,18 +301,19 @@ button{
     </div>
 
 
-    <div class="card">
+    <div class="admin-box">
 
       <h2>Lifetime Access Requests</h2>
 
       <button
-        class="refresh-btn"
-        onclick="loadRequests()"
-      >
+        class="refresh"
+        id="refreshBtn">
         🔄 Refresh
       </button>
 
-      <div id="requestList">
+      <div id="message" class="message"></div>
+
+      <div id="requests">
         <div class="loading">
           Loading requests...
         </div>
@@ -311,625 +326,957 @@ button{
 </div>
 
 
+<!-- Firebase -->
 <script type="module">
 
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    initializeApp
+  } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
 
-import {
-  getAuth,
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  signOut
-}
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getAuth,
+    signInWithEmailAndPassword,
+    onAuthStateChanged,
+    signOut
+  } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
 
-import {
-  getDatabase,
-  ref,
-  onValue,
-  update
-}
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-
-/* ================================
-   FIREBASE CONFIG
-================================ */
-
-const firebaseConfig = {
-
-  apiKey:
-  "AIzaSyB6eYdpMNqlqdP3xCIw5wki93e0VysDa-A",
-
-  authDomain:
-  "nearby-jobs-2ec6d.firebaseapp.com",
-
-  databaseURL:
-  "https://nearby-jobs-2ec6d-default-rtdb.asia-southeast1.firebasedatabase.app",
-
-  projectId:
-  "nearby-jobs-2ec6d",
-
-  storageBucket:
-  "nearby-jobs-2ec6d.firebasestorage.app",
-
-  messagingSenderId:
-  "1010574945465",
-
-  appId:
-  "1:1010574945465:web:81547556f8fa37e8fbff68",
-
-  measurementId:
-  "G-QEVWXBND2D"
-};
+  import {
+    getDatabase,
+    ref,
+    get,
+    update
+  } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 
 
-/* ================================
-   INITIALIZE FIREBASE
-================================ */
+  // ==============================
+  // FIREBASE CONFIG
+  // ==============================
 
-const app = initializeApp(firebaseConfig);
+  const firebaseConfig = {
 
-const auth = getAuth(app);
+    apiKey: "AIzaSyB6eYdpMNqlqdP3xCIw5wki93e0VysDa-A",
 
-const db = getDatabase(app);
+    authDomain:
+      "nearby-jobs-2ec6d.firebaseapp.com",
+
+    databaseURL:
+      "https://nearby-jobs-2ec6d-default-rtdb.asia-southeast1.firebasedatabase.app",
+
+    projectId:
+      "nearby-jobs-2ec6d",
+
+    storageBucket:
+      "nearby-jobs-2ec6d.firebasestorage.app",
+
+    messagingSenderId:
+      "1010574945465",
+
+    appId:
+      "1:1010574945465:web:81547556f8fa37e8fbff68",
+
+    measurementId:
+      "G-QEVWXBND2D"
+  };
 
 
-/* ================================
-   ADMIN EMAIL
-================================ */
+  // ==============================
+  // FIREBASE INIT
+  // ==============================
 
-const ADMIN_EMAIL =
-  "mp4.iofc@gmail.com";
+  const app = initializeApp(firebaseConfig);
+
+  const auth = getAuth(app);
+
+  const db = getDatabase(app);
 
 
-/* ================================
-   LOGIN
-================================ */
+  // ==============================
+  // ADMIN EMAIL
+  // ==============================
 
-window.loginAdmin = async function(){
+  const ADMIN_EMAIL =
+    "mp4.iofc@gmail.com";
 
-  const email =
-    document.getElementById("email").value.trim();
 
-  const password =
-    document.getElementById("password").value;
+  // ==============================
+  // ELEMENTS
+  // ==============================
 
-  const errorBox =
-    document.getElementById("loginError");
+  const loginSection =
+    document.getElementById("loginSection");
 
-  const button =
+  const adminSection =
+    document.getElementById("adminSection");
+
+  const loginBtn =
     document.getElementById("loginBtn");
 
+  const logoutBtn =
+    document.getElementById("logoutBtn");
 
-  errorBox.style.display = "none";
+  const refreshBtn =
+    document.getElementById("refreshBtn");
+
+  const emailInput =
+    document.getElementById("email");
+
+  const passwordInput =
+    document.getElementById("password");
+
+  const loginMessage =
+    document.getElementById("loginMessage");
+
+  const message =
+    document.getElementById("message");
+
+  const requestsDiv =
+    document.getElementById("requests");
 
 
-  if(!email || !password){
+  // ==============================
+  // MESSAGE
+  // ==============================
 
-    errorBox.innerText =
-      "Please enter email and password.";
+  function showMessage(
+    element,
+    text,
+    type = "error"
+  ) {
 
-    errorBox.style.display = "block";
+    element.textContent = text;
 
-    return;
+    element.className =
+      "message " + type;
+
+    element.style.display =
+      "block";
+
   }
 
 
-  if(email.toLowerCase() !== ADMIN_EMAIL){
+  function hideMessage(element) {
 
-    errorBox.innerText =
-      "This account is not authorized as admin.";
+    element.style.display =
+      "none";
 
-    errorBox.style.display = "block";
-
-    return;
   }
 
 
-  button.disabled = true;
+  // ==============================
+  // LOGIN
+  // ==============================
 
-  button.innerText = "Logging in...";
+  loginBtn.addEventListener(
+    "click",
+    async () => {
 
+      hideMessage(loginMessage);
 
-  try{
+      const email =
+        emailInput.value.trim();
 
-    await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-
-  }catch(error){
-
-    console.error(error);
-
-    let message =
-      "Login failed. Please check your email and password.";
-
-    if(error.code === "auth/invalid-credential"){
-      message =
-        "Wrong email or password.";
-    }
-
-    if(error.code === "auth/user-not-found"){
-      message =
-        "Admin account not found in Firebase Authentication.";
-    }
-
-    if(error.code === "auth/wrong-password"){
-      message =
-        "Wrong password.";
-    }
-
-    if(error.code === "auth/too-many-requests"){
-      message =
-        "Too many attempts. Please try again later.";
-    }
-
-    errorBox.innerText = message;
-
-    errorBox.style.display = "block";
-
-    button.disabled = false;
-
-    button.innerText = "Login";
-  }
-
-};
+      const password =
+        passwordInput.value;
 
 
-/* ================================
-   AUTH STATE
-================================ */
+      if (!email || !password) {
 
-onAuthStateChanged(auth, user => {
-
-  if(user){
-
-    if(
-      user.email &&
-      user.email.toLowerCase() === ADMIN_EMAIL
-    ){
-
-      document.getElementById("loginPage")
-        .style.display = "none";
-
-      document.getElementById("adminPage")
-        .style.display = "block";
-
-      loadRequests();
-
-    }else{
-
-      signOut(auth);
-
-      alert(
-        "This account is not authorized as admin."
-      );
-
-    }
-
-  }else{
-
-    document.getElementById("loginPage")
-      .style.display = "block";
-
-    document.getElementById("adminPage")
-      .style.display = "none";
-  }
-
-});
-
-
-/* ================================
-   LOGOUT
-================================ */
-
-window.logoutAdmin = async function(){
-
-  await signOut(auth);
-
-};
-
-
-/* ================================
-   LOAD REQUESTS
-================================ */
-
-window.loadRequests = function(){
-
-  const list =
-    document.getElementById("requestList");
-
-  list.innerHTML =
-    '<div class="loading">Loading requests...</div>';
-
-
-  const requestsRef =
-    ref(db, "accessRequests");
-
-
-  onValue(
-    requestsRef,
-    snapshot => {
-
-      const data =
-        snapshot.val();
-
-
-      if(!data){
-
-        list.innerHTML =
-          '<div class="empty">No requests found.</div>';
+        showMessage(
+          loginMessage,
+          "Email आणि password टाका."
+        );
 
         return;
       }
 
 
-      let html = "";
+      if (
+        email.toLowerCase() !==
+        ADMIN_EMAIL.toLowerCase()
+      ) {
 
-      const requests =
-        Object.entries(data);
+        showMessage(
+          loginMessage,
+          "Access denied. हा admin email नाही."
+        );
 
-
-      requests.reverse();
-
-
-      requests.forEach(
-        ([id, request]) => {
-
-          if(!request){
-            return;
-          }
+        return;
+      }
 
 
-          const status =
-            request.status || "pending";
+      loginBtn.disabled =
+        true;
+
+      loginBtn.textContent =
+        "Logging in...";
 
 
-          let statusHTML = "";
+      try {
+
+        await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+
+      } catch (error) {
+
+        console.error(error);
+
+        let text =
+          "Login failed.";
+
+        if (
+          error.code ===
+          "auth/invalid-credential"
+        ) {
+
+          text =
+            "Email किंवा password चुकीचा आहे.";
+
+        } else if (
+          error.code ===
+          "auth/user-not-found"
+        ) {
+
+          text =
+            "हा admin account Firebase मध्ये नाही.";
+
+        } else if (
+          error.code ===
+          "auth/wrong-password"
+        ) {
+
+          text =
+            "Password चुकीचा आहे.";
+
+        } else if (
+          error.code ===
+          "auth/too-many-requests"
+        ) {
+
+          text =
+            "खूप login attempts झाले. थोड्या वेळाने पुन्हा प्रयत्न करा.";
+        }
+
+        showMessage(
+          loginMessage,
+          text
+        );
+
+      } finally {
+
+        loginBtn.disabled =
+          false;
+
+        loginBtn.textContent =
+          "Login";
+      }
+
+    }
+  );
 
 
-          if(status === "approved"){
+  // ==============================
+  // AUTH STATE
+  // ==============================
 
-            statusHTML =
-              '<span class="status-approved">✓ APPROVED</span>';
+  onAuthStateChanged(
+    auth,
+    async (user) => {
 
-          }else if(status === "rejected"){
+      if (user) {
 
-            statusHTML =
-              '<span class="status-rejected">✕ REJECTED</span>';
+        if (
+          user.email.toLowerCase() !==
+          ADMIN_EMAIL.toLowerCase()
+        ) {
 
-          }else{
+          await signOut(auth);
 
-            statusHTML =
-              '<span class="badge">PENDING</span>';
-          }
+          showMessage(
+            loginMessage,
+            "Only admin can access this panel."
+          );
 
-
-          const amount =
-            request.amount || 10;
-
-          const upi =
-            request.upi || "mp0089@ybl";
-
-          const utr =
-            request.utr || "-";
-
-          const whatsapp =
-            request.whatsappNumber || "-";
-
-          const source =
-            request.source || "nearbyjobs-blogger";
-
-          const createdAt =
-            request.createdAt || "-";
+          return;
+        }
 
 
-          html += `
+        loginSection.classList.add(
+          "hidden"
+        );
 
-          <div class="request">
-
-            <div class="request-top">
-
-              <strong>
-                Lifetime Access Request
-              </strong>
-
-              ${statusHTML}
-
-            </div>
+        adminSection.classList.remove(
+          "hidden"
+        );
 
 
-            <div class="row">
-              <span class="label">
-                💰 Amount:
-              </span>
-              ₹${escapeHTML(String(amount))}
-            </div>
+        loadRequests();
+
+      } else {
+
+        loginSection.classList.remove(
+          "hidden"
+        );
+
+        adminSection.classList.add(
+          "hidden"
+        );
+
+      }
+
+    }
+  );
 
 
-            <div class="row">
-              <span class="label">
-                💳 UPI:
-              </span>
-              ${escapeHTML(String(upi))}
-            </div>
+  // ==============================
+  // LOGOUT
+  // ==============================
+
+  logoutBtn.addEventListener(
+    "click",
+    async () => {
+
+      await signOut(auth);
+
+    }
+  );
 
 
-            <div class="row">
-              <span class="label">
-                🔢 UTR / Transaction ID:
-              </span>
-              ${escapeHTML(String(utr))}
-            </div>
+  // ==============================
+  // REFRESH
+  // ==============================
+
+  refreshBtn.addEventListener(
+    "click",
+    () => {
+
+      loadRequests();
+
+    }
+  );
 
 
-            <div class="row">
-              <span class="label">
-                📱 WhatsApp:
-              </span>
+  // ==============================
+  // FIND REQUESTS
+  // ==============================
 
-              <a
-                href="https://wa.me/${cleanPhone(whatsapp)}"
-                target="_blank"
-              >
-                ${escapeHTML(String(whatsapp))}
-              </a>
+  function findRequests(
+    value,
+    path = "",
+    result = []
+  ) {
 
-            </div>
+    if (
+      value === null ||
+      value === undefined
+    ) {
 
+      return result;
 
-            <div class="row">
-              <span class="label">
-                🕐 Created:
-              </span>
-              ${formatDate(createdAt)}
-            </div>
+    }
 
 
-            <div class="row">
-              <span class="label">
-                🌐 Source:
-              </span>
-              ${escapeHTML(String(source))}
-            </div>
+    if (
+      typeof value === "object" &&
+      !Array.isArray(value)
+    ) {
+
+      const keys =
+        Object.keys(value);
 
 
-            <div class="row">
-              <span class="label">
-                🆔 Request ID:
-              </span>
-              <small>${escapeHTML(String(id))}</small>
-            </div>
+      /*
+       * Request identification:
+       * amount + status + transaction/UTR
+       */
+
+      const hasAmount =
+        value.amount !== undefined;
+
+      const hasStatus =
+        value.status !== undefined;
+
+      const hasUtr =
+        value.utr !== undefined ||
+        value.transactionId !== undefined ||
+        value.transactionID !== undefined;
 
 
-            ${
-              status === "pending"
-              ?
-              `
+      if (
+        hasAmount &&
+        hasStatus &&
+        hasUtr
+      ) {
 
-              <div class="actions">
+        result.push({
+          path: path,
+          data: value
+        });
 
-                <button
-                  class="approve-btn"
-                  onclick="approveRequest('${escapeJS(id)}')"
-                >
-                  ✓ Approve
-                </button>
+      }
 
 
-                <button
-                  class="reject-btn"
-                  onclick="rejectRequest('${escapeJS(id)}')"
-                >
-                  ✕ Reject
-                </button>
+      keys.forEach(key => {
 
-              </div>
+        const newPath =
+          path
+            ? path + "/" + key
+            : key;
 
-              `
-              :
-              ""
-            }
 
-          </div>
+        findRequests(
+          value[key],
+          newPath,
+          result
+        );
 
-          `;
+      });
+
+    }
+
+
+    return result;
+
+  }
+
+
+  // ==============================
+  // LOAD REQUESTS
+  // ==============================
+
+  async function loadRequests() {
+
+    requestsDiv.innerHTML =
+      `<div class="loading">
+        Loading requests...
+      </div>`;
+
+    hideMessage(message);
+
+
+    try {
+
+      const snapshot =
+        await get(ref(db));
+
+
+      if (!snapshot.exists()) {
+
+        requestsDiv.innerHTML =
+          `<div class="empty">
+            No requests found.
+          </div>`;
+
+        return;
+      }
+
+
+      const data =
+        snapshot.val();
+
+
+      const found =
+        findRequests(data);
+
+
+      if (found.length === 0) {
+
+        requestsDiv.innerHTML =
+          `<div class="empty">
+            No lifetime access requests found.
+          </div>`;
+
+        return;
+      }
+
+
+      /*
+       * Newest first
+       */
+
+      found.sort(
+        (a, b) => {
+
+          const timeA =
+            Number(
+              a.data.createdAt || 0
+            );
+
+          const timeB =
+            Number(
+              b.data.createdAt || 0
+            );
+
+          return timeB - timeA;
 
         }
       );
 
 
-      if(html === ""){
+      requestsDiv.innerHTML =
+        "";
 
-        list.innerHTML =
-          '<div class="empty">No requests found.</div>';
 
-      }else{
+      found.forEach(
+        (item, index) => {
 
-        list.innerHTML = html;
+          createRequestCard(
+            item,
+            index
+          );
 
-      }
+        }
+      );
 
-    },
 
-    error => {
+    } catch (error) {
 
       console.error(error);
 
-      list.innerHTML =
-        `
-        <div class="error" style="display:block;">
-          Unable to load requests.
-          Check Firebase Database Rules.
-        </div>
-        `;
+      requestsDiv.innerHTML =
+        "";
+
+      showMessage(
+        message,
+        "Firebase data load झाला नाही: " +
+        error.message
+      );
 
     }
 
-  );
-
-};
-
-
-/* ================================
-   APPROVE REQUEST
-================================ */
-
-window.approveRequest = async function(id){
-
-  const confirmApprove =
-    confirm(
-      "Approve this ₹10 Lifetime Access request?"
-    );
-
-
-  if(!confirmApprove){
-    return;
   }
 
 
-  try{
+  // ==============================
+  // CREATE CARD
+  // ==============================
 
-    await update(
-      ref(db, "accessRequests/" + id),
-      {
-        status: "approved",
-        approvedAt: Date.now(),
-        approvedBy: ADMIN_EMAIL
-      }
-    );
+  function createRequestCard(
+    item,
+    index
+  ) {
 
+    const data =
+      item.data;
 
-    alert(
-      "Request approved successfully!"
-    );
-
-
-  }catch(error){
-
-    console.error(error);
-
-    alert(
-      "Could not approve request.\n\n" +
-      error.message
-    );
-
-  }
-
-};
+    const path =
+      item.path;
 
 
-/* ================================
-   REJECT REQUEST
-================================ */
-
-window.rejectRequest = async function(id){
-
-  const confirmReject =
-    confirm(
-      "Reject this Lifetime Access request?"
-    );
+    const status =
+      String(
+        data.status || "pending"
+      ).toLowerCase();
 
 
-  if(!confirmReject){
-    return;
-  }
+    let statusClass =
+      "pending";
+
+    let statusText =
+      "PENDING";
 
 
-  try{
+    if (status === "approved") {
 
-    await update(
-      ref(db, "accessRequests/" + id),
-      {
-        status: "rejected",
-        rejectedAt: Date.now(),
-        rejectedBy: ADMIN_EMAIL
-      }
-    );
+      statusClass =
+        "approved";
 
+      statusText =
+        "✓ APPROVED";
 
-    alert(
-      "Request rejected."
-    );
+    } else if (
+      status === "rejected"
+    ) {
 
+      statusClass =
+        "rejected";
 
-  }catch(error){
+      statusText =
+        "✕ REJECTED";
 
-    console.error(error);
-
-    alert(
-      "Could not reject request.\n\n" +
-      error.message
-    );
-
-  }
-
-};
-
-
-/* ================================
-   HELPERS
-================================ */
-
-function escapeHTML(value){
-
-  return value
-    .replace(/&/g,"&amp;")
-    .replace(/</g,"&lt;")
-    .replace(/>/g,"&gt;")
-    .replace(/"/g,"&quot;")
-    .replace(/'/g,"&#039;");
-
-}
-
-
-function escapeJS(value){
-
-  return value
-    .replace(/\\/g,"\\\\")
-    .replace(/'/g,"\\'");
-}
-
-
-function cleanPhone(value){
-
-  return String(value)
-    .replace(/\D/g,"");
-
-}
-
-
-function formatDate(value){
-
-  if(!value){
-    return "-";
-  }
-
-
-  const date =
-    new Date(Number(value));
-
-
-  if(isNaN(date.getTime())){
-    return escapeHTML(String(value));
-  }
-
-
-  return date.toLocaleString(
-    "en-IN",
-    {
-      dateStyle:"medium",
-      timeStyle:"short"
     }
-  );
 
-}
+
+    const card =
+      document.createElement("div");
+
+    card.className =
+      "request";
+
+
+    const amount =
+      data.amount ??
+      10;
+
+
+    const upi =
+      data.upi ??
+      "-";
+
+
+    const utr =
+      data.utr ??
+      data.transactionId ??
+      data.transactionID ??
+      "-";
+
+
+    const whatsapp =
+      data.whatsappNumber ??
+      data.whatsapp ??
+      "-";
+
+
+    const source =
+      data.source ??
+      "nearbyjobs-blogger";
+
+
+    const created =
+      formatDate(
+        data.createdAt
+      );
+
+
+    const requestId =
+      data.requestId ??
+      data.id ??
+      path.split("/").pop() ??
+      "-";
+
+
+    card.innerHTML = `
+
+      <h3>
+        Lifetime Access Request
+      </h3>
+
+      <span class="status ${statusClass}">
+        ${statusText}
+      </span>
+
+      <div class="row">
+        💰 <strong>Amount:</strong>
+        ₹${escapeHTML(amount)}
+      </div>
+
+      <div class="row">
+        💳 <strong>UPI:</strong>
+        ${escapeHTML(upi)}
+      </div>
+
+      <div class="row">
+        🔢 <strong>UTR / Transaction ID:</strong>
+        ${escapeHTML(utr)}
+      </div>
+
+      <div class="row">
+        📱 <strong>WhatsApp:</strong>
+        ${
+          whatsapp !== "-"
+          ? `<a class="whatsapp"
+               href="https://wa.me/${cleanPhone(whatsapp)}"
+               target="_blank">
+               ${escapeHTML(whatsapp)}
+             </a>`
+          : "-"
+        }
+      </div>
+
+      <div class="row">
+        🕐 <strong>Created:</strong>
+        ${escapeHTML(created)}
+      </div>
+
+      <div class="row">
+        🌐 <strong>Source:</strong>
+        ${escapeHTML(source)}
+      </div>
+
+      <div class="row">
+        🆔 <strong>Request ID:</strong>
+        ${escapeHTML(requestId)}
+      </div>
+
+      <div class="small">
+        Firebase path:
+        ${escapeHTML(path)}
+      </div>
+
+    `;
+
+
+    /*
+     * ACTION BUTTONS
+     */
+
+    if (status === "pending") {
+
+      const actions =
+        document.createElement("div");
+
+      actions.className =
+        "actions";
+
+
+      const approve =
+        document.createElement("button");
+
+      approve.className =
+        "approve";
+
+      approve.textContent =
+        "✓ APPROVE";
+
+
+      const reject =
+        document.createElement("button");
+
+      reject.className =
+        "reject";
+
+      reject.textContent =
+        "✕ REJECT";
+
+
+      approve.addEventListener(
+        "click",
+        () => {
+
+          updateStatus(
+            path,
+            "approved",
+            approve,
+            reject
+          );
+
+        }
+      );
+
+
+      reject.addEventListener(
+        "click",
+        () => {
+
+          updateStatus(
+            path,
+            "rejected",
+            approve,
+            reject
+          );
+
+        }
+      );
+
+
+      actions.appendChild(
+        approve
+      );
+
+      actions.appendChild(
+        reject
+      );
+
+      card.appendChild(
+        actions
+      );
+
+    }
+
+
+    requestsDiv.appendChild(
+      card
+    );
+
+  }
+
+
+  // ==============================
+  // UPDATE STATUS
+  // ==============================
+
+  async function updateStatus(
+    path,
+    newStatus,
+    approveButton,
+    rejectButton
+  ) {
+
+    const actionText =
+      newStatus === "approved"
+        ? "APPROVE"
+        : "REJECT";
+
+
+    const confirmed =
+      confirm(
+        "ही request " +
+        actionText +
+        " करायची आहे का?"
+      );
+
+
+    if (!confirmed) {
+
+      return;
+
+    }
+
+
+    approveButton.disabled =
+      true;
+
+    rejectButton.disabled =
+      true;
+
+
+    try {
+
+      const updates = {};
+
+      updates[
+        path + "/status"
+      ] =
+        newStatus;
+
+
+      updates[
+        path + "/updatedAt"
+      ] =
+        Date.now();
+
+
+      updates[
+        path + "/updatedBy"
+      ] =
+        ADMIN_EMAIL;
+
+
+      await update(
+        ref(db),
+        updates
+      );
+
+
+      showMessage(
+        message,
+        "Request successfully " +
+        newStatus +
+        ".",
+        "success"
+      );
+
+
+      /*
+       * Reload cards
+       */
+
+      await loadRequests();
+
+
+    } catch (error) {
+
+      console.error(error);
+
+      approveButton.disabled =
+        false;
+
+      rejectButton.disabled =
+        false;
+
+
+      showMessage(
+        message,
+        "Status update failed: " +
+        error.message
+      );
+
+    }
+
+  }
+
+
+  // ==============================
+  // DATE
+  // ==============================
+
+  function formatDate(
+    timestamp
+  ) {
+
+    if (!timestamp) {
+
+      return "-";
+
+    }
+
+
+    const date =
+      new Date(
+        Number(timestamp)
+      );
+
+
+    if (
+      Number.isNaN(
+        date.getTime()
+      )
+    ) {
+
+      return String(timestamp);
+
+    }
+
+
+    return date.toLocaleString(
+      "en-IN",
+      {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        hour12: true
+      }
+    );
+
+  }
+
+
+  // ==============================
+  // PHONE
+  // ==============================
+
+  function cleanPhone(
+    phone
+  ) {
+
+    return String(phone)
+      .replace(/\D/g, "");
+
+  }
+
+
+  // ==============================
+  // HTML ESCAPE
+  // ==============================
+
+  function escapeHTML(
+    value
+  ) {
+
+    return String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+
+  }
 
 </script>
 
 </body>
-  </html>
+</html>
