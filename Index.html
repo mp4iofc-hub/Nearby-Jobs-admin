@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Nearby Jobs Admin</title>
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f2f6fc;
+  color:#17233c;
+}
+
+.container{
+  width:100%;
+  max-width:1100px;
+  margin:auto;
+  padding:20px;
+}
+
+.header{
+  background:#0d6efd;
+  color:white;
+  padding:20px;
+  border-radius:16px;
+  margin-bottom:20px;
+  box-shadow:0 5px 20px rgba(0,0,0,.12);
+}
+
+.header h1{
+  margin:0 0 5px;
+  font-size:28px;
+}
+
+.header p{
+  margin:0;
+  opacity:.9;
+}
+
+.card{
+  background:white;
+  border-radius:16px;
+  padding:22px;
+  box-shadow:0 5px 20px rgba(0,0,0,.08);
+  margin-bottom:20px;
+}
+
+.login-card{
+  max-width:450px;
+  margin:60px auto;
+}
+
+h2{
+  margin-top:0;
+}
+
+input{
+  width:100%;
+  padding:14px;
+  margin:8px 0;
+  border:1px solid #d5dce7;
+  border-radius:10px;
+  font-size:16px;
+  outline:none;
+}
+
+input:focus{
+  border-color:#0d6efd;
+}
+
+button{
+  border:0;
+  border-radius:10px;
+  padding:12px 18px;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.login-btn{
+  width:100%;
+  background:#0d6efd;
+  color:white;
+  margin-top:10px;
+}
+
+.login-btn:disabled{
+  opacity:.6;
+}
+
+.logout-btn{
+  background:#dc3545;
+  color:white;
+  float:right;
+}
+
+.refresh-btn{
+  background:#0d6efd;
+  color:white;
+  margin-bottom:15px;
+}
+
+.approve-btn{
+  background:#198754;
+  color:white;
+}
+
+.reject-btn{
+  background:#dc3545;
+  color:white;
+}
+
+.request{
+  border:1px solid #e0e6ef;
+  border-radius:14px;
+  padding:18px;
+  margin-bottom:15px;
+  background:#fff;
+}
+
+.request-top{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+  margin-bottom:12px;
+}
+
+.badge{
+  background:#fff3cd;
+  color:#856404;
+  padding:6px 10px;
+  border-radius:20px;
+  font-size:13px;
+  font-weight:bold;
+}
+
+.row{
+  margin:8px 0;
+  line-height:1.5;
+}
+
+.label{
+  font-weight:bold;
+  color:#536174;
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+  margin-top:15px;
+  flex-wrap:wrap;
+}
+
+.status-approved{
+  color:#198754;
+  font-weight:bold;
+}
+
+.status-rejected{
+  color:#dc3545;
+  font-weight:bold;
+}
+
+.error{
+  color:#dc3545;
+  background:#ffe8eb;
+  padding:10px;
+  border-radius:8px;
+  margin-top:10px;
+  display:none;
+}
+
+.success{
+  color:#146c43;
+  background:#d1e7dd;
+  padding:10px;
+  border-radius:8px;
+  margin-top:10px;
+  display:none;
+}
+
+.empty{
+  text-align:center;
+  padding:40px 10px;
+  color:#697586;
+}
+
+.loading{
+  text-align:center;
+  padding:30px;
+}
+
+@media(max-width:600px){
+  .container{
+    padding:12px;
+  }
+
+  .header h1{
+    font-size:24px;
+  }
+
+  .request-top{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .actions button{
+    flex:1;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="loginPage">
+
+  <div class="container">
+
+    <div class="card login-card">
+
+      <h1 style="color:#0d6efd;">Nearby Jobs</h1>
+      <h2>Admin Login</h2>
+
+      <p style="color:#687386;">
+        Login only with the authorized admin account.
+      </p>
+
+      <input
+        type="email"
+        id="email"
+        placeholder="Admin Email"
+        autocomplete="email"
+      >
+
+      <input
+        type="password"
+        id="password"
+        placeholder="Password"
+        autocomplete="current-password"
+      >
+
+      <button
+        class="login-btn"
+        id="loginBtn"
+        onclick="loginAdmin()"
+      >
+        Login
+      </button>
+
+      <div id="loginError" class="error"></div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<div id="adminPage" style="display:none;">
+
+  <div class="container">
+
+    <div class="header">
+
+      <button
+        class="logout-btn"
+        onclick="logoutAdmin()"
+      >
+        Logout
+      </button>
+
+      <h1>Nearby Jobs Admin</h1>
+
+      <p>
+        Manage ₹10 Lifetime Job Access Requests
+      </p>
+
+    </div>
+
+
+    <div class="card">
+
+      <h2>Lifetime Access Requests</h2>
+
+      <button
+        class="refresh-btn"
+        onclick="loadRequests()"
+      >
+        🔄 Refresh
+      </button>
+
+      <div id="requestList">
+        <div class="loading">
+          Loading requests...
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  signOut
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import {
+  getDatabase,
+  ref,
+  onValue,
+  update
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+
+/* ================================
+   FIREBASE CONFIG
+================================ */
+
+const firebaseConfig = {
+
+  apiKey:
+  "AIzaSyB6eYdpMNqlqdP3xCIw5wki93e0VysDa-A",
+
+  authDomain:
+  "nearby-jobs-2ec6d.firebaseapp.com",
+
+  databaseURL:
+  "https://nearby-jobs-2ec6d-default-rtdb.asia-southeast1.firebasedatabase.app",
+
+  projectId:
+  "nearby-jobs-2ec6d",
+
+  storageBucket:
+  "nearby-jobs-2ec6d.firebasestorage.app",
+
+  messagingSenderId:
+  "1010574945465",
+
+  appId:
+  "1:1010574945465:web:81547556f8fa37e8fbff68",
+
+  measurementId:
+  "G-QEVWXBND2D"
+};
+
+
+/* ================================
+   INITIALIZE FIREBASE
+================================ */
+
+const app = initializeApp(firebaseConfig);
+
+const auth = getAuth(app);
+
+const db = getDatabase(app);
+
+
+/* ================================
+   ADMIN EMAIL
+================================ */
+
+const ADMIN_EMAIL =
+  "mp4.iofc@gmail.com";
+
+
+/* ================================
+   LOGIN
+================================ */
+
+window.loginAdmin = async function(){
+
+  const email =
+    document.getElementById("email").value.trim();
+
+  const password =
+    document.getElementById("password").value;
+
+  const errorBox =
+    document.getElementById("loginError");
+
+  const button =
+    document.getElementById("loginBtn");
+
+
+  errorBox.style.display = "none";
+
+
+  if(!email || !password){
+
+    errorBox.innerText =
+      "Please enter email and password.";
+
+    errorBox.style.display = "block";
+
+    return;
+  }
+
+
+  if(email.toLowerCase() !== ADMIN_EMAIL){
+
+    errorBox.innerText =
+      "This account is not authorized as admin.";
+
+    errorBox.style.display = "block";
+
+    return;
+  }
+
+
+  button.disabled = true;
+
+  button.innerText = "Logging in...";
+
+
+  try{
+
+    await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    let message =
+      "Login failed. Please check your email and password.";
+
+    if(error.code === "auth/invalid-credential"){
+      message =
+        "Wrong email or password.";
+    }
+
+    if(error.code === "auth/user-not-found"){
+      message =
+        "Admin account not found in Firebase Authentication.";
+    }
+
+    if(error.code === "auth/wrong-password"){
+      message =
+        "Wrong password.";
+    }
+
+    if(error.code === "auth/too-many-requests"){
+      message =
+        "Too many attempts. Please try again later.";
+    }
+
+    errorBox.innerText = message;
+
+    errorBox.style.display = "block";
+
+    button.disabled = false;
+
+    button.innerText = "Login";
+  }
+
+};
+
+
+/* ================================
+   AUTH STATE
+================================ */
+
+onAuthStateChanged(auth, user => {
+
+  if(user){
+
+    if(
+      user.email &&
+      user.email.toLowerCase() === ADMIN_EMAIL
+    ){
+
+      document.getElementById("loginPage")
+        .style.display = "none";
+
+      document.getElementById("adminPage")
+        .style.display = "block";
+
+      loadRequests();
+
+    }else{
+
+      signOut(auth);
+
+      alert(
+        "This account is not authorized as admin."
+      );
+
+    }
+
+  }else{
+
+    document.getElementById("loginPage")
+      .style.display = "block";
+
+    document.getElementById("adminPage")
+      .style.display = "none";
+  }
+
+});
+
+
+/* ================================
+   LOGOUT
+================================ */
+
+window.logoutAdmin = async function(){
+
+  await signOut(auth);
+
+};
+
+
+/* ================================
+   LOAD REQUESTS
+================================ */
+
+window.loadRequests = function(){
+
+  const list =
+    document.getElementById("requestList");
+
+  list.innerHTML =
+    '<div class="loading">Loading requests...</div>';
+
+
+  const requestsRef =
+    ref(db, "accessRequests");
+
+
+  onValue(
+    requestsRef,
+    snapshot => {
+
+      const data =
+        snapshot.val();
+
+
+      if(!data){
+
+        list.innerHTML =
+          '<div class="empty">No requests found.</div>';
+
+        return;
+      }
+
+
+      let html = "";
+
+      const requests =
+        Object.entries(data);
+
+
+      requests.reverse();
+
+
+      requests.forEach(
+        ([id, request]) => {
+
+          if(!request){
+            return;
+          }
+
+
+          const status =
+            request.status || "pending";
+
+
+          let statusHTML = "";
+
+
+          if(status === "approved"){
+
+            statusHTML =
+              '<span class="status-approved">✓ APPROVED</span>';
+
+          }else if(status === "rejected"){
+
+            statusHTML =
+              '<span class="status-rejected">✕ REJECTED</span>';
+
+          }else{
+
+            statusHTML =
+              '<span class="badge">PENDING</span>';
+          }
+
+
+          const amount =
+            request.amount || 10;
+
+          const upi =
+            request.upi || "mp0089@ybl";
+
+          const utr =
+            request.utr || "-";
+
+          const whatsapp =
+            request.whatsappNumber || "-";
+
+          const source =
+            request.source || "nearbyjobs-blogger";
+
+          const createdAt =
+            request.createdAt || "-";
+
+
+          html += `
+
+          <div class="request">
+
+            <div class="request-top">
+
+              <strong>
+                Lifetime Access Request
+              </strong>
+
+              ${statusHTML}
+
+            </div>
+
+
+            <div class="row">
+              <span class="label">
+                💰 Amount:
+              </span>
+              ₹${escapeHTML(String(amount))}
+            </div>
+
+
+            <div class="row">
+              <span class="label">
+                💳 UPI:
+              </span>
+              ${escapeHTML(String(upi))}
+            </div>
+
+
+            <div class="row">
+              <span class="label">
+                🔢 UTR / Transaction ID:
+              </span>
+              ${escapeHTML(String(utr))}
+            </div>
+
+
+            <div class="row">
+              <span class="label">
+                📱 WhatsApp:
+              </span>
+
+              <a
+                href="https://wa.me/${cleanPhone(whatsapp)}"
+                target="_blank"
+              >
+                ${escapeHTML(String(whatsapp))}
+              </a>
+
+            </div>
+
+
+            <div class="row">
+              <span class="label">
+                🕐 Created:
+              </span>
+              ${formatDate(createdAt)}
+            </div>
+
+
+            <div class="row">
+              <span class="label">
+                🌐 Source:
+              </span>
+              ${escapeHTML(String(source))}
+            </div>
+
+
+            <div class="row">
+              <span class="label">
+                🆔 Request ID:
+              </span>
+              <small>${escapeHTML(String(id))}</small>
+            </div>
+
+
+            ${
+              status === "pending"
+              ?
+              `
+
+              <div class="actions">
+
+                <button
+                  class="approve-btn"
+                  onclick="approveRequest('${escapeJS(id)}')"
+                >
+                  ✓ Approve
+                </button>
+
+
+                <button
+                  class="reject-btn"
+                  onclick="rejectRequest('${escapeJS(id)}')"
+                >
+                  ✕ Reject
+                </button>
+
+              </div>
+
+              `
+              :
+              ""
+            }
+
+          </div>
+
+          `;
+
+        }
+      );
+
+
+      if(html === ""){
+
+        list.innerHTML =
+          '<div class="empty">No requests found.</div>';
+
+      }else{
+
+        list.innerHTML = html;
+
+      }
+
+    },
+
+    error => {
+
+      console.error(error);
+
+      list.innerHTML =
+        `
+        <div class="error" style="display:block;">
+          Unable to load requests.
+          Check Firebase Database Rules.
+        </div>
+        `;
+
+    }
+
+  );
+
+};
+
+
+/* ================================
+   APPROVE REQUEST
+================================ */
+
+window.approveRequest = async function(id){
+
+  const confirmApprove =
+    confirm(
+      "Approve this ₹10 Lifetime Access request?"
+    );
+
+
+  if(!confirmApprove){
+    return;
+  }
+
+
+  try{
+
+    await update(
+      ref(db, "accessRequests/" + id),
+      {
+        status: "approved",
+        approvedAt: Date.now(),
+        approvedBy: ADMIN_EMAIL
+      }
+    );
+
+
+    alert(
+      "Request approved successfully!"
+    );
+
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      "Could not approve request.\n\n" +
+      error.message
+    );
+
+  }
+
+};
+
+
+/* ================================
+   REJECT REQUEST
+================================ */
+
+window.rejectRequest = async function(id){
+
+  const confirmReject =
+    confirm(
+      "Reject this Lifetime Access request?"
+    );
+
+
+  if(!confirmReject){
+    return;
+  }
+
+
+  try{
+
+    await update(
+      ref(db, "accessRequests/" + id),
+      {
+        status: "rejected",
+        rejectedAt: Date.now(),
+        rejectedBy: ADMIN_EMAIL
+      }
+    );
+
+
+    alert(
+      "Request rejected."
+    );
+
+
+  }catch(error){
+
+    console.error(error);
+
+    alert(
+      "Could not reject request.\n\n" +
+      error.message
+    );
+
+  }
+
+};
+
+
+/* ================================
+   HELPERS
+================================ */
+
+function escapeHTML(value){
+
+  return value
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+function escapeJS(value){
+
+  return value
+    .replace(/\\/g,"\\\\")
+    .replace(/'/g,"\\'");
+}
+
+
+function cleanPhone(value){
+
+  return String(value)
+    .replace(/\D/g,"");
+
+}
+
+
+function formatDate(value){
+
+  if(!value){
+    return "-";
+  }
+
+
+  const date =
+    new Date(Number(value));
+
+
+  if(isNaN(date.getTime())){
+    return escapeHTML(String(value));
+  }
+
+
+  return date.toLocaleString(
+    "en-IN",
+    {
+      dateStyle:"medium",
+      timeStyle:"short"
+    }
+  );
+
+}
+
+</script>
+
+</body>
+  </html>
