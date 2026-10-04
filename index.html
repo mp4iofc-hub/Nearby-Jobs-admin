@@ -68,6 +68,11 @@
       cursor: pointer;
     }
 
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
     .login-btn {
       width: 100%;
       background: #1268e8;
@@ -209,6 +214,7 @@
     .small {
       font-size: 13px;
       color: #667085;
+      word-break: break-all;
     }
 
     @media(max-width:600px) {
@@ -348,13 +354,14 @@
   } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
 
 
-  // ==============================
+  // ==========================================
   // FIREBASE CONFIG
-  // ==============================
+  // ==========================================
 
   const firebaseConfig = {
 
-    apiKey: "AIzaSyB6eYdpMNqlqdP3xCIw5wki93e0VysDa-A",
+    apiKey:
+      "AIzaSyB6eYdpMNqlqdP3xCIw5wki93e0VysDa-A",
 
     authDomain:
       "nearby-jobs-2ec6d.firebaseapp.com",
@@ -379,28 +386,31 @@
   };
 
 
-  // ==============================
+  // ==========================================
   // FIREBASE INIT
-  // ==============================
+  // ==========================================
 
-  const app = initializeApp(firebaseConfig);
+  const app =
+    initializeApp(firebaseConfig);
 
-  const auth = getAuth(app);
+  const auth =
+    getAuth(app);
 
-  const db = getDatabase(app);
+  const db =
+    getDatabase(app);
 
 
-  // ==============================
+  // ==========================================
   // ADMIN EMAIL
-  // ==============================
+  // ==========================================
 
   const ADMIN_EMAIL =
     "mp4.iofc@gmail.com";
 
 
-  // ==============================
+  // ==========================================
   // ELEMENTS
-  // ==============================
+  // ==========================================
 
   const loginSection =
     document.getElementById("loginSection");
@@ -433,9 +443,9 @@
     document.getElementById("requests");
 
 
-  // ==============================
+  // ==========================================
   // MESSAGE
-  // ==============================
+  // ==========================================
 
   function showMessage(
     element,
@@ -443,34 +453,37 @@
     type = "error"
   ) {
 
-    element.textContent = text;
+    element.textContent =
+      text;
 
     element.className =
       "message " + type;
 
     element.style.display =
       "block";
-
   }
 
 
-  function hideMessage(element) {
+  function hideMessage(
+    element
+  ) {
 
     element.style.display =
       "none";
-
   }
 
 
-  // ==============================
+  // ==========================================
   // LOGIN
-  // ==============================
+  // ==========================================
 
   loginBtn.addEventListener(
     "click",
     async () => {
 
-      hideMessage(loginMessage);
+      hideMessage(
+        loginMessage
+      );
 
       const email =
         emailInput.value.trim();
@@ -577,9 +590,9 @@
   );
 
 
-  // ==============================
+  // ==========================================
   // AUTH STATE
-  // ==============================
+  // ==========================================
 
   onAuthStateChanged(
     auth,
@@ -588,6 +601,7 @@
       if (user) {
 
         if (
+          !user.email ||
           user.email.toLowerCase() !==
           ADMIN_EMAIL.toLowerCase()
         ) {
@@ -630,9 +644,9 @@
   );
 
 
-  // ==============================
+  // ==========================================
   // LOGOUT
-  // ==============================
+  // ==========================================
 
   logoutBtn.addEventListener(
     "click",
@@ -644,9 +658,9 @@
   );
 
 
-  // ==============================
+  // ==========================================
   // REFRESH
-  // ==============================
+  // ==========================================
 
   refreshBtn.addEventListener(
     "click",
@@ -658,9 +672,9 @@
   );
 
 
-  // ==============================
+  // ==========================================
   // FIND REQUESTS
-  // ==============================
+  // ==========================================
 
   function findRequests(
     value,
@@ -674,7 +688,6 @@
     ) {
 
       return result;
-
     }
 
 
@@ -686,11 +699,6 @@
       const keys =
         Object.keys(value);
 
-
-      /*
-       * Request identification:
-       * amount + status + transaction/UTR
-       */
 
       const hasAmount =
         value.amount !== undefined;
@@ -718,33 +726,34 @@
       }
 
 
-      keys.forEach(key => {
+      keys.forEach(
+        key => {
 
-        const newPath =
-          path
-            ? path + "/" + key
-            : key;
+          const newPath =
+            path
+              ? path + "/" + key
+              : key;
 
 
-        findRequests(
-          value[key],
-          newPath,
-          result
-        );
+          findRequests(
+            value[key],
+            newPath,
+            result
+          );
 
-      });
+        }
+      );
 
     }
 
 
     return result;
-
   }
 
 
-  // ==============================
+  // ==========================================
   // LOAD REQUESTS
-  // ==============================
+  // ==========================================
 
   async function loadRequests() {
 
@@ -753,13 +762,25 @@
         Loading requests...
       </div>`;
 
-    hideMessage(message);
+    hideMessage(
+      message
+    );
 
 
     try {
 
+      /*
+       * IMPORTANT:
+       * Read only /accessRequests
+       */
+
       const snapshot =
-  await get(ref(db, "accessRequests"));
+        await get(
+          ref(
+            db,
+            "accessRequests"
+          )
+        );
 
 
       if (!snapshot.exists()) {
@@ -778,10 +799,14 @@
 
 
       const found =
-        findRequests(data);
+        findRequests(
+          data
+        );
 
 
-      if (found.length === 0) {
+      if (
+        found.length === 0
+      ) {
 
         requestsDiv.innerHTML =
           `<div class="empty">
@@ -810,7 +835,6 @@
             );
 
           return timeB - timeA;
-
         }
       );
 
@@ -833,7 +857,10 @@
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "Firebase error:",
+        error
+      );
 
       requestsDiv.innerHTML =
         "";
@@ -849,9 +876,9 @@
   }
 
 
-  // ==============================
-  // CREATE CARD
-  // ==============================
+  // ==========================================
+  // CREATE REQUEST CARD
+  // ==========================================
 
   function createRequestCard(
     item,
@@ -867,7 +894,8 @@
 
     const status =
       String(
-        data.status || "pending"
+        data.status ||
+        "pending"
       ).toLowerCase();
 
 
@@ -878,7 +906,9 @@
       "PENDING";
 
 
-    if (status === "approved") {
+    if (
+      status === "approved"
+    ) {
 
       statusClass =
         "approved";
@@ -895,12 +925,13 @@
 
       statusText =
         "✕ REJECTED";
-
     }
 
 
     const card =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
     card.className =
       "request";
@@ -947,6 +978,10 @@
       "-";
 
 
+    const approved =
+      data.approved === true;
+
+
     card.innerHTML = `
 
       <h3>
@@ -976,7 +1011,8 @@
         📱 <strong>WhatsApp:</strong>
         ${
           whatsapp !== "-"
-          ? `<a class="whatsapp"
+          ? `<a
+               class="whatsapp"
                href="https://wa.me/${cleanPhone(whatsapp)}"
                target="_blank">
                ${escapeHTML(whatsapp)}
@@ -1000,6 +1036,15 @@
         ${escapeHTML(requestId)}
       </div>
 
+      <div class="row">
+        🔐 <strong>Lifetime Access:</strong>
+        ${
+          approved
+          ? "✅ GRANTED"
+          : "❌ NOT GRANTED"
+        }
+      </div>
+
       <div class="small">
         Firebase path:
         ${escapeHTML(path)}
@@ -1008,21 +1053,27 @@
     `;
 
 
-    /*
-     * ACTION BUTTONS
-     */
+    // ======================================
+    // ACTION BUTTONS
+    // ======================================
 
-    if (status === "pending") {
+    if (
+      status === "pending"
+    ) {
 
       const actions =
-        document.createElement("div");
+        document.createElement(
+          "div"
+        );
 
       actions.className =
         "actions";
 
 
       const approve =
-        document.createElement("button");
+        document.createElement(
+          "button"
+        );
 
       approve.className =
         "approve";
@@ -1032,7 +1083,9 @@
 
 
       const reject =
-        document.createElement("button");
+        document.createElement(
+          "button"
+        );
 
       reject.className =
         "reject";
@@ -1082,20 +1135,18 @@
       card.appendChild(
         actions
       );
-
     }
 
 
     requestsDiv.appendChild(
       card
     );
-
   }
 
 
-  // ==============================
-  // UPDATE STATUS
-  // ==============================
+  // ==========================================
+  // UPDATE STATUS + LIFETIME ACCESS
+  // ==========================================
 
   async function updateStatus(
     path,
@@ -1119,9 +1170,7 @@
 
 
     if (!confirmed) {
-
       return;
-
     }
 
 
@@ -1134,12 +1183,31 @@
 
     try {
 
+      /*
+       * IMPORTANT:
+       *
+       * APPROVE:
+       * status = approved
+       * approved = true
+       *
+       * REJECT:
+       * status = rejected
+       * approved = false
+       */
+
       const updates = {};
+
 
       updates[
         path + "/status"
       ] =
         newStatus;
+
+
+      updates[
+        path + "/approved"
+      ] =
+        newStatus === "approved";
 
 
       updates[
@@ -1154,6 +1222,10 @@
         ADMIN_EMAIL;
 
 
+      /*
+       * Save everything to Firebase
+       */
+
       await update(
         ref(db),
         updates
@@ -1162,15 +1234,15 @@
 
       showMessage(
         message,
-        "Request successfully " +
-        newStatus +
-        ".",
+        newStatus === "approved"
+          ? "✅ Request approved. Lifetime Access granted."
+          : "❌ Request rejected. Lifetime Access not granted.",
         "success"
       );
 
 
       /*
-       * Reload cards
+       * Reload data
        */
 
       await loadRequests();
@@ -1178,7 +1250,11 @@
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "Status update error:",
+        error
+      );
+
 
       approveButton.disabled =
         false;
@@ -1198,85 +1274,12 @@
   }
 
 
-  // ==============================
-  // DATE
-  // ==============================
+  // ==========================================
+  // DATE FORMAT
+  // ==========================================
 
   function formatDate(
     timestamp
   ) {
 
-    if (!timestamp) {
-
-      return "-";
-
-    }
-
-
-    const date =
-      new Date(
-        Number(timestamp)
-      );
-
-
-    if (
-      Number.isNaN(
-        date.getTime()
-      )
-    ) {
-
-      return String(timestamp);
-
-    }
-
-
-    return date.toLocaleString(
-      "en-IN",
-      {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-        hour12: true
-      }
-    );
-
-  }
-
-
-  // ==============================
-  // PHONE
-  // ==============================
-
-  function cleanPhone(
-    phone
-  ) {
-
-    return String(phone)
-      .replace(/\D/g, "");
-
-  }
-
-
-  // ==============================
-  // HTML ESCAPE
-  // ==============================
-
-  function escapeHTML(
-    value
-  ) {
-
-    return String(value)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-
-  }
-
-</script>
-
-</body>
-</html>
+    if (!ti
