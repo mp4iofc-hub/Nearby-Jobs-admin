@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nearby Jobs Admin</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f1f5f9;color:#172033}.container{max-width:900px;margin:auto;padding:18px}.login-box,.admin-box{background:#fff;border-radius:22px;padding:28px;box-shadow:0 8px 30px rgba(0,0,0,.08)}.login-box{margin-top:60px}h1{margin-top:0;color:#1268e8}h2{margin-top:0}input{width:100%;padding:15px;margin:8px 0;border:1px solid #ccd3dd;border-radius:12px;font-size:16px;outline:none}input:focus{border-color:#1268e8}button{border:0;border-radius:12px;padding:14px 20px;font-size:16px;font-weight:bold;cursor:pointer}button:disabled{opacity:.6;cursor:not-allowed}.login-btn{width:100%;background:#1268e8;color:#fff;margin-top:10px}.logout{background:#e63946;color:#fff;float:right}.refresh{background:#1268e8;color:#fff;margin-bottom:20px}.approve{background:#159957;color:#fff;margin-right:8px}.reject{background:#e63946;color:#fff}.top{background:linear-gradient(135deg,#1268e8,#0875ff);color:#fff;border-radius:22px;padding:28px;margin-bottom:25px;overflow:hidden}.top h1{color:#fff;margin-bottom:8px}.top p{font-size:19px;margin:0}.request{background:#fff;border:1px solid #e1e5eb;border-radius:20px;padding:22px;margin-bottom:18px;box-shadow:0 5px 18px rgba(0,0,0,.05)}.request h3{margin-top:0;font-size:20px}.row{margin:10px 0;font-size:16px;line-height:1.4}.status{display:inline-block;padding:7px 13px;border-radius:20px;font-weight:bold;margin-bottom:12px}.pending{background:#fff2c7;color:#8a6a00}.approved{background:#d8f5e5;color:#138a4c}.rejected{background:#ffdadd;color:#c82333}.whatsapp{color:#075bd8;text-decoration:underline;font-weight:bold}.actions{margin-top:18px;padding-top:15px;border-top:1px solid #e5e7eb}.message{padding:12px;border-radius:10px;margin:12px 0;display:none}.error{background:#ffe0e0;color:#a00000}.success{background:#ddf8e8;color:#08783d}.loading{text-align:center;padding:30px;font-size:18px}.hidden{display:none!important}.empty{text-align:center;background:#fff;padding:30px;border-radius:18px}.small{font-size:13px;color:#667085;word-break:break-all}@media(max-width:600px){.container{padding:14px}.login-box,.admin-box{padding:22px}.top{padding:24px}.top h1{font-size:30px}.top p{font-size:18px}.approve,.reject{width:100%;margin:5px 0}.logout{padding:11px 16px}}
+</style>
+</head>
+<body>
+<div class="container">
+<div id="loginSection" class="login-box">
+<h1>Nearby Jobs Admin</h1><h2>Admin Login</h2>
+<input type="email" id="email" placeholder="Admin Email" autocomplete="email" value="mp4.iofc@gmail.com">
+<input type="password" id="password" placeholder="Password" autocomplete="current-password">
+<button class="login-btn" id="loginBtn">Login</button>
+<div id="loginMessage" class="message error"></div>
+</div>
+
+<div id="adminSection" class="hidden">
+<div class="top"><button class="logout" id="logoutBtn">Logout</button><h1>Nearby Jobs Admin</h1><p>Manage ₹10 Lifetime Job Access Requests</p></div>
+<div class="admin-box">
+<h2>Lifetime Access Requests</h2>
+<button class="refresh" id="refreshBtn">🔄 Refresh</button>
+<div id="message" class="message"></div>
+<div id="requests"><div class="loading">Loading requests...</div></div>
+</div>
+</div>
+</div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+import {getAuth,signInWithEmailAndPassword,onAuthStateChanged,signOut} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+import {getDatabase,ref,get,update} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
+const firebaseConfig={
+apiKey:"AIzaSyB6eYdpMNqlqdP3xCIw5wki93e0VysDa-A",
+authDomain:"nearby-jobs-2ec6d.firebaseapp.com",
+databaseURL:"https://nearby-jobs-2ec6d-default-rtdb.asia-southeast1.firebasedatabase.app",
+projectId:"nearby-jobs-2ec6d",
+storageBucket:"nearby-jobs-2ec6d.firebasestorage.app",
+messagingSenderId:"1010574945465",
+appId:"1:1010574945465:web:81547556f8fa37e8fbff68",
+measurementId:"G-QEVWXBND2D"
+};
+
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getDatabase(app);
+const ADMIN_EMAIL="mp4.iofc@gmail.com";
+
+const loginSection=document.getElementById("loginSection");
+const adminSection=document.getElementById("adminSection");
+const loginBtn=document.getElementById("loginBtn");
+const logoutBtn=document.getElementById("logoutBtn");
+const refreshBtn=document.getElementById("refreshBtn");
+const emailInput=document.getElementById("email");
+const passwordInput=document.getElementById("password");
+const loginMessage=document.getElementById("loginMessage");
+const message=document.getElementById("message");
+const requestsDiv=document.getElementById("requests");
+
+function showMessage(el,text,type="error"){el.textContent=text;el.className="message "+type;el.style.display="block"}
+function hideMessage(el){el.style.display="none"}
+
+loginBtn.addEventListener("click",async()=>{
+hideMessage(loginMessage);
+const email=emailInput.value.trim();
+const password=passwordInput.value;
+if(!email||!password){showMessage(loginMessage,"Email आणि password टाका.");return}
+if(email.toLowerCase()!==ADMIN_EMAIL.toLowerCase()){showMessage(loginMessage,"Access denied. हा admin email नाही.");return}
+loginBtn.disabled=true;loginBtn.textContent="Logging in...";
+try{await signInWithEmailAndPassword(auth,email,password)}
+catch(error){console.error(error);let text="Login failed.";if(error.code==="auth/invalid-credential")text="Email किंवा password चुकीचा आहे.";else if(error.code==="auth/user-not-found")text="हा admin account Firebase मध्ये नाही.";else if(error.code==="auth/wrong-password")text="Password चुकीचा आहे.";else if(error.code==="auth/too-many-requests")text="खूप login attempts झाले. थोड्या वेळाने पुन्हा प्रयत्न करा.";showMessage(loginMessage,text)}
+finally{loginBtn.disabled=false;loginBtn.textContent="Login"}
+});
+
+onAuthStateChanged(auth,async user=>{
+if(user){
+if(!user.email||user.email.toLowerCase()!==ADMIN_EMAIL.toLowerCase()){await signOut(auth);showMessage(loginMessage,"Only admin can access this panel.");return}
+loginSection.classList.add("hidden");adminSection.classList.remove("hidden");loadRequests();
+}else{loginSection.classList.remove("hidden");adminSection.classList.add("hidden")}
+});
+
+logoutBtn.addEventListener("click",async()=>{await signOut(auth)});
+refreshBtn.addEventListener("click",()=>loadRequests());
+
+function findRequests(value,path="",result=[]){
+if(value===null||value===undefined)return result;
+if(typeof value==="object"&&!Array.isArray(value)){
+const keys=Object.keys(value);
+const hasAmount=value.amount!==undefined;
+const hasStatus=value.status!==undefined;
+const hasUtr=value.utr!==undefined||value.transactionId!==undefined||value.transactionID!==undefined;
+if(hasAmount&&hasStatus&&hasUtr)result.push({path,data:value});
+keys.forEach(key=>{const newPath=path?path+"/"+key:key;findRequests(value[key],newPath,result)});
+}
+return result;
+}
+
+async function loadRequests(){
+requestsDiv.innerHTML='<div class="loading">Loading requests...</div>';hideMessage(message);
+try{
+const snapshot=await get(ref(db,"accessRequests"));
+if(!snapshot.exists()){requestsDiv.innerHTML='<div class="empty">No requests found.</div>';return}
+const found=findRequests(snapshot.val());
+if(found.length===0){requestsDiv.innerHTML='<div class="empty">No lifetime access requests found.</div>';return}
+found.sort((a,b)=>Number(b.data.createdAt||0)-Number(a.data.createdAt||0));
+requestsDiv.innerHTML="";
+found.forEach(createRequestCard);
+}catch(error){console.error("Firebase error:",error);requestsDiv.innerHTML="";showMessage(message,"Firebase data load झाला नाही: "+error.message)}
+}
+
+function createRequestCard(item){
+const data=item.data,path=item.path,status=String(data.status||"pending").toLowerCase();
+let statusClass="pending",statusText="PENDING";
+if(status==="approved"){statusClass="approved";statusText="✓ APPROVED"}else if(status==="rejected"){statusClass="rejected";statusText="✕ REJECTED"}
+const card=document.createElement("div");card.className="request";
+const amount=data.amount??10;
+const upi=data.upi??"-";
+const utr=data.utr??data.transactionId??data.transactionID??"-";
+const whatsapp=data.whatsappNumber??data.whatsapp??"-";
+const source=data.source??"nearbyjobs-blogger";
+const created=formatDate(data.createdAt);
+const requestId=data.requestId??data.id??path.split("/").pop()??"-";
+const approved=data.approved===true;
+card.innerHTML=`
+<h3>Lifetime Access Request</h3>
+<span class="status ${statusClass}">${statusText}</span>
+<div class="row">💰 <strong>Amount:</strong> ₹${escapeHTML(amount)}</div>
+<div class="row">💳 <strong>UPI:</strong> ${escapeHTML(upi)}</div>
+<div class="row">🔢 <strong>UTR / Transaction ID:</strong> ${escapeHTML(utr)}</div>
+<div class="row">📱 <strong>WhatsApp:</strong> ${whatsapp!=="-"?`<a class="whatsapp" href="https://wa.me/${cleanPhone(whatsapp)}" target="_blank">${escapeHTML(whatsapp)}</a>`:"-"}</div>
+<div class="row">🕐 <strong>Created:</strong> ${escapeHTML(created)}</div>
+<div class="row">🌐 <strong>Source:</strong> ${escapeHTML(source)}</div>
+<div class="row">🆔 <strong>Request ID:</strong> ${escapeHTML(requestId)}</div>
+<div class="row">🔐 <strong>Lifetime Access:</strong> ${approved?"✅ GRANTED":"❌ NOT GRANTED"}</div>
+<div class="small">Firebase path: accessRequests/${escapeHTML(path)}</div>`;
+
+if(status==="pending"){
+const actions=document.createElement("div");actions.className="actions";
+const approve=document.createElement("button");approve.className="approve";approve.textContent="✓ APPROVE";
+const reject=document.createElement("button");reject.className="reject";reject.textContent="✕ REJECT";
+approve.addEventListener("click",()=>updateStatus(path,"approved",approve,reject));
+reject.addEventListener("click",()=>updateStatus(path,"rejected",approve,reject));
+actions.appendChild(approve);actions.appendChild(reject);card.appendChild(actions);
+}
+requestsDiv.appendChild(card);
+}
+
+async function updateStatus(path,newStatus,approveButton,rejectButton){
+const actionText=newStatus==="approved"?"APPROVE":"REJECT";
+if(!confirm("ही request "+actionText+" करायची आहे का?"))return;
+approveButton.disabled=true;rejectButton.disabled=true;
+try{
+/* CRITICAL FIX: path is only request ID because we read from /accessRequests */
+const requestRef=ref(db,"accessRequests/"+path);
+await update(requestRef,{
+status:newStatus,
+approved:newStatus==="approved",
+updatedAt:Date.now(),
+updatedBy:ADMIN_EMAIL
+});
+showMessage(message,newStatus==="approved"?"✅ Request approved. Lifetime Access granted.":"❌ Request rejected. Lifetime Access not granted.","success");
+await loadRequests();
+}catch(error){
+console.error("Status update error:",error);
+approveButton.disabled=false;rejectButton.disabled=false;
+showMessage(message,"Status update failed: "+error.message);
+}
+}
+
+function formatDate(timestamp){
+if(!timestamp)return "-";
+const date=new Date(Number(timestamp));
+if(Number.isNaN(date.getTime()))return String(timestamp);
+return date.toLocaleString("en-IN",{day:"numeric",month:"short",year:"numeric",hour:"numeric",minute:"2-digit",hour12:true});
+}
+function cleanPhone(phone){return String(phone).replace(/\D/g,"")}
+function escapeHTML(value){return String(value).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}
+</script>
+</body>
+</html>
