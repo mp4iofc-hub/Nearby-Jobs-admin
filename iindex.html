@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nearby Jobs Admin</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f6fb;color:#17233c}
+.wrap{max-width:900px;margin:auto;padding:18px}
+.card{background:#fff;border-radius:20px;padding:20px;margin:15px 0;box-shadow:0 5px 25px rgba(0,0,0,.08)}
+h1{margin:0;color:#1268d8} h2{margin-top:0}
+input{width:100%;padding:13px;margin:7px 0;border:1px solid #d7dce5;border-radius:10px;font-size:15px}
+button{border:0;border-radius:10px;padding:12px 18px;font-weight:700;cursor:pointer}
+button:disabled{opacity:.55;cursor:not-allowed}
+.login{background:#1268d8;color:#fff;width:100%;margin-top:8px}
+.logout{background:#e63946;color:#fff}
+.refresh{background:#1268d8;color:#fff}
+.approve{background:#159447;color:#fff}
+.reject{background:#d93025;color:#fff;margin-left:6px}
+.status{padding:12px;border-radius:12px;background:#eef6ff;margin-top:12px}
+.req{border:1px solid #e2e6ee;border-radius:16px;padding:16px;margin:12px 0;background:#fff}
+.req b{color:#1268d8}
+.meta{line-height:1.75;color:#444}
+.small{font-size:12px;color:#777}
+.hidden{display:none!important}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.badge{display:inline-block;padding:6px 10px;border-radius:20px;background:#fff3cd;color:#856404;font-size:12px;font-weight:700}
+.badge.approved{background:#dff6e7;color:#14753b}
+.badge.rejected{background:#ffe2e0;color:#a32018}
+.error{background:#ffe8e6;color:#a32018;padding:10px;border-radius:10px;margin-top:10px}
+.success{background:#e2f8eb;color:#08783d;padding:10px;border-radius:10px;margin-top:10px}
+.sectionTitle{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:25px}
+.count{background:#1268d8;color:#fff;border-radius:20px;padding:5px 10px;font-size:12px;font-weight:700}
+.jobTitle{font-size:20px;font-weight:800;color:#17233c;margin-bottom:8px}
+.actions{margin-top:14px;padding-top:12px;border-top:1px solid #e5e7eb}
+.wa{color:#075bd8;font-weight:700;text-decoration:underline}
+.empty{padding:20px;text-align:center;color:#667085;background:#f8fafc;border-radius:12px}
+@media(max-width:600px){
+ .wrap{padding:12px}.card{padding:16px}.approve,.reject{width:100%;margin:5px 0}
+ .logout{padding:10px 14px}.top{align-items:flex-start}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="card" id="loginCard">
+  <h1>Nearby Jobs Admin</h1>
+  <p>Admin login — authorized email only</p>
+  <input id="email" type="email" placeholder="Admin email" autocomplete="email">
+  <input id="password" type="password" placeholder="Password" autocomplete="current-password">
+  <button class="login" id="loginBtn">Login</button>
+  <div id="loginMsg"></div>
+</div>
+
+<div class="card hidden" id="adminCard">
+  <div class="top">
+    <div>
+      <h1>Nearby Jobs Admin</h1>
+      <div class="small" id="adminEmail"></div>
+    </div>
+    <button class="logout" id="logoutBtn">Logout</button>
+  </div>
+
+  <div class="status">
+    <b>Admin Dashboard</b>
+    <button class="refresh" id="refreshBtn" style="float:right">🔄 Refresh</button>
+    <div style="clear:both"></div>
+    <div style="margin-top:12px">
+      <button id="bloggerConnectBtn" style="background:#e94235;color:#fff">🔗 Connect Blogger</button>
+      <span id="bloggerStatus" class="small" style="margin-left:8px">Not connected</span>
+    </div>
+  </div>
+
+  <div class="sectionTitle">
+    <h2>₹10 Lifetime Access Requests</h2>
+    <span class="count" id="accessCount">0</span>
+  </div>
+  <div id="accessRequests">Loading...</div>
+
+  <div class="sectionTitle">
+    <h2>₹50 Job Post Requests</h2>
+    <span class="count" id="jobCount">0</span>
+  </div>
+  <div id="jobPostRequests">Loading...</div>
+</div>
+</div>
+
+<script src="https://accounts.google.com/gsi/client"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.3.0/firebase-app.js";
+import {
+  getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-auth.js";
+import {
+  getDatabase, ref, get, update
+} from "https://www.gstatic.com/firebasejs/12.3.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB6eYdpMNqlqdP3xCIw5wki93e0VysDa-A",
+  authDomain: "nearby-jobs-2ec6d.firebaseapp.com",
+  databaseURL: "https://nearby-jobs-2ec6d-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "nearby-jobs-2ec6d",
+  storageBucket: "nearby-jobs-2ec6d.firebasestorage.app",
+  messagingSenderId: "1010574945465",
+  appId: "1:1010574945465:web:81547556f8fa37e8fbff68",
+  measurementId: "G-QEVWXBND2D"
+};
+
+const ADMIN_EMAIL = "mp4.iofc@gmail.com";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getDatabase(app);
+const $ = id => document.getElementById(id);
+window.addEventListener("load", initBlogger);
+
+$("loginBtn").onclick = async () => {
+  $("loginMsg").innerHTML = "";
+  try {
+    await signInWithEmailAndPassword(
+      auth,
+      $("email").value.trim(),
+      $("password").value
+    );
+  } catch(e) {
+    $("loginMsg").innerHTML =
+      '<div class="error">Login failed: '+escapeHtml(e.message)+'</div>';
+  }
+};
+
+$("logoutBtn").onclick = () => signOut(auth);
+$("refreshBtn").onclick = loadAll;
+
+onAuthStateChanged(auth, async user => {
+  if(user){
+    const email = (user.email || "").trim().toLowerCase();
+
+    if(email !== ADMIN_EMAIL.toLowerCase()){
+      await signOut(auth);
+      $("loginMsg").innerHTML =
+        '<div class="error">Access denied. This Admin Panel is only for the authorized admin.</div>';
+      return;
+    }
+
+    $("loginCard").classList.add("hidden");
+    $("adminCard").classList.remove("hidden");
+    $("adminEmail").textContent = user.email || "";
+    loadAll();
+  }else{
+    $("loginCard").classList.remove("hidden");
+    $("adminCard").classList.add("hidden");
+  }
+});
+
+async function loadAll(){
+  await Promise.all([loadAccessRequests(), loadJobRequests()]);
+}
+
+async function loadAccessRequests(){
+  const box = $("accessRequests");
+  box.innerHTML = "Loading...";
+
+  try{
+    const snap = await get(ref(db,"accessRequests"));
+    const data = snap.val() || {};
+    const arr = Object.entries(data).map(([id,v]) => ({id,...v}));
+
+    arr.sort((a,b)=>(Number(b.createdAt)||0)-(Number(a.createdAt)||0));
+    $("accessCount").textContent = arr.length;
+
+    if(!arr.length){
+      box.innerHTML = '<div class="empty">No ₹10 access requests yet.</div>';
+      return;
+    }
+
+    box.innerHTML = arr.map(r => {
+      const status = String(r.status || "pending").toLowerCase();
+      const cls = status==="approved" ? "approved" :
+                  status==="rejected" ? "rejected" : "";
+
+      return `
+      <div class="req">
+        <div class="top">
+          <b>Lifetime Access Request</b>
+          <span class="badge ${cls}">${escapeHtml(status.toUpperCase())}</span>
+        </div>
+
+        <div class="meta">
+          💰 <b>Amount:</b> ₹${escapeHtml(String(r.amount ?? 10))}<br>
+          💳 <b>UPI:</b> ${escapeHtml(r.upi || "mp0089@ybl")}<br>
+          🔢 <b>UTR / Transaction ID:</b> ${escapeHtml(r.utr || r.transactionId || "-")}<br>
+          📱 <b>WhatsApp:</b>
+          ${r.whatsappNumber ? `<a class="wa" target="_blank" href="https://wa.me/${cleanPhone(r.whatsappNumber)}">${escapeHtml(r.whatsappNumber)}</a>` : "-"}<br>
+          🕐 <b>Created:</b> ${formatDate(r.createdAt)}<br>
+          🆔 <b>Request ID:</b> ${escapeHtml(r.requestId || r.id || "-")}
+        </div>
+
+        ${status==="pending" ? `
+        <div class="actions">
+          <button class="approve" onclick="changeAccessStatus('${js(r.id)}','approved')">✓ APPROVE</button>
+          <button class="reject" onclick="changeAccessStatus('${js(r.id)}','rejected')">✕ REJECT</button>
+        </div>` : ""}
+      </div>`;
+    }).join("");
+
+  }catch(e){
+    box.innerHTML = '<div class="error">Firebase data load failed: '+escapeHtml(e.message)+'</div>';
+  }
+}
+
+async function loadJobRequests(){
+  const box = $("jobPostRequests");
+  box.innerHTML = "Loading...";
+
+  try{
+    const snap = await get(ref(db,"jobPostRequests"));
+    const data = snap.val() || {};
+    const arr = Object.entries(data).map(([id,v]) => ({id,...v}));
+
+    arr.sort((a,b)=>(Number(b.createdAt)||0)-(Number(a.createdAt)||0));
+    $("jobCount").textContent = arr.length;
+
+    if(!arr.length){
+      box.innerHTML = '<div class="empty">No ₹50 job post requests yet.</div>';
+      return;
+    }
+
+    box.innerHTML = arr.map(r => {
+      const status = String(r.status || "pending").toLowerCase();
+      const cls = status==="approved" ? "approved" :
+                  status==="rejected" ? "rejected" : "";
+
+      return `
+      <div class="req">
+        <div class="top">
+          <div class="jobTitle">${escapeHtml(r.jobTitle || "Job Post")}</div>
+          <span class="badge ${cls}">${escapeHtml(status.toUpperCase())}</span>
+        </div>
+
+        <div class="meta">
+          🏢 <b>Company:</b> ${escapeHtml(r.company || "-")}<br>
+          📍 <b>Location:</b> ${escapeHtml(r.location || "-")}<br>
+          🏷️ <b>Category:</b> ${escapeHtml(r.category || "-")}<br>
+          💼 <b>Job Type:</b> ${escapeHtml(r.jobType || "-")}<br>
+          💰 <b>Salary:</b> ₹${escapeHtml(r.salary || "-")}<br>
+          📝 <b>Description:</b> ${escapeHtml(r.description || "-")}<br>
+          💳 <b>UPI:</b> ${escapeHtml(r.upi || "mp0089@ybl")}<br>
+          🔢 <b>UTR / Transaction ID:</b> ${escapeHtml(r.utr || r.transactionId || "-")}<br>
+          📱 <b>WhatsApp:</b>
+          ${r.whatsappNumber ? `<a class="wa" target="_blank" href="https://wa.me/${cleanPhone(r.whatsappNumber)}">${escapeHtml(r.whatsappNumber)}</a>` : "-"}<br>
+          💵 <b>Amount:</b> ₹${escapeHtml(String(r.amount ?? 50))}<br>
+          🕐 <b>Created:</b> ${formatDate(r.createdAt)}<br>
+          🆔 <b>Request ID:</b> ${escapeHtml(r.requestId || r.id || "-")}
+          ${r.bloggerPostUrl ? `<br>📝 <b>Blogger Post:</b> <a class="wa" target="_blank" href="${escapeHtml(r.bloggerPostUrl)}">Open Post</a>` : ""}
+          ${r.publishError ? `<br><div class="error">Publish error: ${escapeHtml(r.publishError)}</div>` : ""}
+        </div>
+
+        ${status==="pending" ? `
+        <div class="actions">
+          <button class="approve" onclick="changeJobStatus('${js(r.id)}','approved')">✓ APPROVE</button>
+          <button class="reject" onclick="changeJobStatus('${js(r.id)}','rejected')">✕ REJECT</button>
+        </div>` : ""}
+      </div>`;
+    }).join("");
+
+  }catch(e){
+    box.innerHTML = '<div class="error">Firebase job requests load failed: '+escapeHtml(e.message)+'</div>';
+  }
+}
+
+window.changeAccessStatus = async (id,status) => {
+  const action = status === "approved" ? "APPROVE" : "REJECT";
+  if(!confirm("This ₹10 request will be "+action.toLowerCase()+". Continue?")) return;
+
+  try{
+    const updates = {};
+    updates["accessRequests/"+id+"/status"] = status;
+    updates["accessRequests/"+id+"/approved"] = status === "approved";
+    updates["accessRequests/"+id+"/updatedAt"] = Date.now();
+    updates["accessRequests/"+id+"/updatedBy"] = auth.currentUser?.email || ADMIN_EMAIL;
+
+    updates["accessStatus/"+id+"/status"] = status;
+    updates["accessStatus/"+id+"/approved"] = status === "approved";
+    updates["accessStatus/"+id+"/updatedAt"] = Date.now();
+
+    await update(ref(db), updates);
+
+    alert("₹10 request "+status+".");
+    await loadAccessRequests();
+  }catch(e){
+    alert("Status update failed: "+e.message);
+  }
+};
+
+const BLOGGER_CLIENT_ID = "697988476613-gtvhfpm0j46fn5b6vlknrrgdtn4r8cci.apps.googleusercontent.com";
+const BLOG_URL = "https://nearbyjobpoint.blogspot.com/";
+const BLOGGER_SCOPE = "https://www.googleapis.com/auth/blogger";
+let bloggerToken = null;
+let bloggerTokenClient = null;
+let bloggerBlogId = null;
+
+function setBloggerStatus(text, ok=false){
+  const el=$("bloggerStatus"); if(!el)return;
+  el.textContent=text; el.style.color=ok?"#14753b":"#a32018";
+}
+function initBlogger(){
+  if(!window.google?.accounts?.oauth2){setBloggerStatus("Google OAuth library not loaded");return;}
+  bloggerTokenClient=google.accounts.oauth2.initTokenClient({
+    client_id:BLOGGER_CLIENT_ID, scope:BLOGGER_SCOPE,
+    callback:async (response)=>{
+      if(response.error){console.error(response);setBloggerStatus("OAuth failed");return;}
+      bloggerToken=response.access_token;
+      try{ bloggerBlogId=await getBloggerBlogId(); setBloggerStatus("Blogger connected ✓",true); alert("Blogger connected successfully."); }
+      catch(e){ bloggerToken=null; bloggerBlogId=null; console.error(e); setBloggerStatus("Blogger connection failed"); alert("Blogger connection failed: "+e.message); }
+    }
+  });
+}
+async function connectBlogger(){
+  if(!bloggerTokenClient)initBlogger();
+  if(!bloggerTokenClient){alert("Google OAuth is not ready. Please refresh the Admin Panel.");return;}
+  bloggerTokenClient.requestAccessToken({prompt:bloggerToken?"":"consent"});
+}
+$("bloggerConnectBtn").onclick=connectBlogger;
+async function getBloggerBlogId(){
+  const res=await fetch("https://www.googleapis.com/blogger/v3/blogs/byurl?url="+encodeURIComponent(BLOG_URL),{headers:{Authorization:"Bearer "+bloggerToken}});
+  const data=await res.json();
+  if(!res.ok)throw new Error(data.error?.message||"Could not find Blogger blog.");
+  if(!data.id)throw new Error("Blogger Blog ID was not returned.");
+  return data.id;
+}
+function buildBloggerPost(r){
+  const esc=v=>escapeHtml(v==null?"":String(v));
+  const description=r.description||"";
+  const requirements=r.requirements||r.eligibility||"";
+  const title=r.jobTitle||"Job Vacancy";
+
+  const field=(icon,label,value)=>`
+    <div style="display:flex;gap:12px;align-items:flex-start;padding:13px 0;border-bottom:1px solid #e2e8f0;">
+      <div style="width:34px;height:34px;border-radius:10px;background:#eff6ff;display:flex;align-items:center;justify-content:center;font-size:16px;flex:0 0 34px;">${icon}</div>
+      <div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#64748b;margin-bottom:3px;">${label}</div>
+        <div style="font-size:15px;font-weight:600;color:#0f172a;">${esc(value||"-")}</div>
+      </div>
+    </div>`;
+
+  const requirementHtml=String(requirements).trim()
+    ? `<p style="margin:0;line-height:1.8;color:#334155;">${esc(requirements).replace(/\n/g,"<br>")}</p>`
+    : `<p style="margin:0;color:#64748b;">Not specified</p>`;
+
+  const content=`<div style="font-family:Arial,Helvetica,sans-serif;max-width:760px;margin:0 auto;color:#0f172a;">
+
+  <div style="background:linear-gradient(135deg,#0f172a 0%,#1d4ed8 100%);border-radius:18px;padding:26px 24px;margin:8px 0 20px;box-shadow:0 12px 30px rgba(15,23,42,.14);">
+    <div style="display:inline-block;background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.24);border-radius:999px;padding:6px 11px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px;">${esc(r.jobType||"Job Opportunity")}</div>
+    <div style="font-size:24px;line-height:1.25;font-weight:800;color:#fff;margin-bottom:8px;">${esc(title)}</div>
+    <div style="font-size:14px;color:#dbeafe;">${esc(r.company||"Company")} · ${esc(r.location||"Location")}</div>
+  </div>
+
+  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:4px 20px;margin-bottom:20px;box-shadow:0 6px 22px rgba(15,23,42,.06);">
+    ${field("💰","Salary",r.salary)}
+    ${field("🏢","Company",r.company)}
+    ${field("📍","Location",r.location)}
+    ${field("🧰","Category",r.category)}
+    ${field("🕒","Job Type",r.jobType)}
+  </div>
+
+  <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:20px;margin-bottom:18px;">
+    <div style="font-size:18px;font-weight:800;color:#0f172a;margin-bottom:12px;">📋 Job Description</div>
+    <div style="font-size:15px;line-height:1.8;color:#334155;">${esc(description).replace(/\n/g,"<br>")||"Not specified"}</div>
+  </div>
+
+  <div style="background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:20px;margin-bottom:20px;">
+    <div style="font-size:18px;font-weight:800;color:#0f172a;margin-bottom:12px;">✅ Requirements</div>
+    ${requirementHtml}
+  </div>
+
+  <div style="background:linear-gradient(135deg,#eff6ff,#f8fafc);border:1px solid #bfdbfe;border-radius:16px;padding:18px 20px;margin-bottom:20px;">
+    <div style="font-size:16px;font-weight:800;color:#1e3a8a;margin-bottom:6px;">📩 How to Apply</div>
+    <div style="font-size:14px;line-height:1.7;color:#475569;">Contact the employer using the protected contact section below.</div>
+  </div>
+
+  <!-- Nearby Jobs contact-lock markers: DO NOT REMOVE -->
+  <div>
+    <p>CONTACT_PHONE: ${esc(r.whatsappNumber||"")}</p>
+    <p>CONTACT_WHATSAPP: ${esc(r.whatsappNumber||"")}</p>
+  </div>
+
+</div>`;
+
+  return {title,content,labels:["Jobs",r.category,r.location].filter(Boolean)};
+}
+
+async function createBloggerPost(r){
+  if(!bloggerToken)throw new Error("Blogger is not connected. Tap Connect Blogger first.");
+  if(!bloggerBlogId)bloggerBlogId=await getBloggerBlogId();
+  const res=await fetch(`https://www.googleapis.com/blogger/v3/blogs/${encodeURIComponent(bloggerBlogId)}/posts/`,{method:"POST",headers:{Authorization:"Bearer "+bloggerToken,"Content-Type":"application/json"},body:JSON.stringify(buildBloggerPost(r))});
+  const data=await res.json();
+  if(!res.ok)throw new Error(data.error?.message||"Blogger post creation failed.");
+  return {id:data.id,url:data.url||"",published:data.published||""};
+}
+window.changeJobStatus=async(id,status)=>{
+  const action=status==="approved"?"APPROVE":"REJECT";
+  if(!confirm("This ₹50 job post request will be "+action.toLowerCase()+". Continue?"))return;
+  try{
+    const snap=await get(ref(db,"jobPostRequests/"+id));
+    if(!snap.exists())throw new Error("Job request not found.");
+    const job=snap.val()||{};
+    if(status==="rejected"){
+      const u={}; u["jobPostRequests/"+id+"/status"]="rejected";u["jobPostRequests/"+id+"/approved"]=false;u["jobPostRequests/"+id+"/updatedAt"]=Date.now();u["jobPostRequests/"+id+"/updatedBy"]=auth.currentUser?.email||ADMIN_EMAIL;await update(ref(db),u);alert("₹50 job request rejected.");await loadJobRequests();return;
+    }
+    if(job.bloggerPostId){alert("This job is already published on Blogger.\n\n"+(job.bloggerPostUrl||job.bloggerPostId));return;}
+    if(!bloggerToken){alert("First tap 🔗 Connect Blogger and authorize mp4.iofc@gmail.com.");return;}
+    const pub={};pub["jobPostRequests/"+id+"/status"]="publishing";pub["jobPostRequests/"+id+"/updatedAt"]=Date.now();pub["jobPostRequests/"+id+"/updatedBy"]=auth.currentUser?.email||ADMIN_EMAIL;await update(ref(db),pub);await loadJobRequests();
+    let post;
+    try{post=await createBloggerPost(job);}catch(e){const f={};f["jobPostRequests/"+id+"/status"]="pending";f["jobPostRequests/"+id+"/approved"]=false;f["jobPostRequests/"+id+"/publishError"]=e.message;f["jobPostRequests/"+id+"/updatedAt"]=Date.now();await update(ref(db),f);await loadJobRequests();throw e;}
+    const u={};u["jobPostRequests/"+id+"/status"]="approved";u["jobPostRequests/"+id+"/approved"]=true;u["jobPostRequests/"+id+"/bloggerPostId"]=post.id;u["jobPostRequests/"+id+"/bloggerPostUrl"]=post.url;u["jobPostRequests/"+id+"/bloggerPublishedAt"]=post.published||Date.now();u["jobPostRequests/"+id+"/updatedAt"]=Date.now();u["jobPostRequests/"+id+"/updatedBy"]=auth.currentUser?.email||ADMIN_EMAIL;u["jobPostRequests/"+id+"/publishError"]=null;await update(ref(db),u);alert("✓ Approved and published on Blogger.\n\n"+(post.url||""));await loadJobRequests();
+  }catch(e){console.error(e);alert("Job approval/publishing failed:\n\n"+e.message);await loadJobRequests();}
+};
+function formatDate(timestamp){
+  if(!timestamp) return "-";
+  const d = new Date(Number(timestamp));
+  if(Number.isNaN(d.getTime())) return String(timestamp);
+  return d.toLocaleString("en-IN",{
+    day:"numeric",month:"short",year:"numeric",
+    hour:"numeric",minute:"2-digit",hour12:true
+  });
+}
+
+function cleanPhone(v){
+  let s = String(v || "").replace(/\D/g,"");
+  if(s.length === 10) s = "91" + s;
+  return s;
+}
+
+function escapeHtml(v){
+  return String(v).replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+  }[c]));
+}
+
+function js(v){
+  return String(v).replace(/\\/g,"\\\\").replace(/'/g,"\\'");
+}
+</script>
+</body>
+</html>
